@@ -4,47 +4,64 @@ import requests
 
 import csv
 
+source = requests.get("http://nepalstock.com.np/").text
+
+soup = BeautifulSoup(source, 'lxml')
+
 csv_file = open('nepse.csv', 'w')
+
 csv_writer = csv.writer(csv_file)
-csv_writer.writerow('s')
 
-for i in range(1, 12):
-    url = ["http://www.nepalstock.com/main/todays_price/index/1/",  # for Nepse market data
-           "http://www.nepalstock.com/main/todays_price/index/2/",
-           "http://www.nepalstock.com/main/todays_price/index/3/",
-           "http://www.nepalstock.com/main/todays_price/index/4/",
-           "http://www.nepalstock.com/main/todays_price/index/5/",
-           "http://www.nepalstock.com/main/todays_price/index/6/",
-           "http://www.nepalstock.com/main/todays_price/index/7/",
-           "http://www.nepalstock.com/main/todays_price/index/8/",
-           "http://www.nepalstock.com/main/todays_price/index/9/",
-           "http://www.nepalstock.com/main/todays_price/index/10/",
-           "http://www.nepalstock.com/main/todays_price/index/11/"]
-    print(url[i - 1])
-    u = url[i - 1]
-    source = requests.get(u)
-    soup = BeautifulSoup(source.text, 'lxml')
-    contain = soup.find('div', class_='container')
-    data = contain.find_next('tr', class_='unique').find_all_next('td')
-    csv_file = open('nepse.csv', 'a')
-    csv_writer = csv.writer(csv_file)
-    for d in data:
-        print(d.text)
-        csv_writer.writerow([d.text])
+csv_writer.writerow(['Symbol', 'Values', 'Total Traded amount'])
 
-url = "http://www.nepalstock.com/"
-source = requests.get(url)
-soup = BeautifulSoup(source.text, 'lxml')
-data = soup.find_all('table', class_='table table-hover table-condensed')
-csv_file = open('nepsemainpage.csv', 'w')
-csv_writer = csv.writer(csv_file)
-csv_writer.writerow('s')
+marquee_tag = soup.find('div', class_="col-xs-10 col-md-10 col-sm-12").marquee.b
 
-for d in data:
-    raw = d.find_all('td')
-    for r in raw:
-        l = r.find_all('img')
-        csv_file = open('nepsemainpage.csv', 'a')
-        csv_writer = csv.writer(csv_file)
-        csv_writer.writerow([r.text])
-        print(r.text)
+for span_tag in marquee_tag('span'):
+    span_tag.replace_with('')
+
+for img_tag in marquee_tag('img'):
+    img_tag.replace_with('')
+
+symbol_list = marquee_tag.text.split('( )')
+
+all_symbols = []
+
+short_name = []
+
+per_share_value = []
+
+total_traded_amount = []
+
+a1 = []
+
+a2 = []
+
+a3 = []
+
+for symbol in symbol_list:
+    symbol_name = symbol.replace(u'\xa0', u'')
+
+    all_symbols.append(symbol_name)
+
+all_symbols.pop()
+
+a = len(all_symbols)
+
+for i in range(a):
+    a1.append(all_symbols[i].strip())
+
+    a2.append(a1[i].split(' '))
+
+for i in range(len(a1)):
+    short_name.append(a2[i][0])
+
+    per_share_value.append(a2[i][1])
+
+    total_traded_amount.append(a2[i][3])
+
+    csv_writer.writerow([a2[i][0], a2[i][1], a2[i][3]])
+
+# print(total_traded_amount)
+
+
+csv_file.close()
