@@ -1,67 +1,58 @@
 from bs4 import BeautifulSoup
-
 import requests
+import lxml
+from csv import writer
+from csv import DictWriter
+import os
 
-import csv
+# Site URL
+url = "https://www.sharesansar.com/market"
 
-source = requests.get("http://nepalstock.com.np/").text
+# make a Get request to fentch the raw HTML data
+con = requests.get(url)
+soup = BeautifulSoup(con.text, 'lxml')  # code of the page
 
-soup = BeautifulSoup(source, 'lxml')
+table = soup.find('table', class_="table table-bordered table-striped table-hover")  # table of data
+headers = [i.text for i in table.find_all('th')]  # data of the th tag
 
-csv_file = open('nepse.csv', 'w')
-
-csv_writer = csv.writer(csv_file)
-
-csv_writer.writerow(['Symbol', 'Values', 'Total Traded amount'])
-
-marquee_tag = soup.find('div', class_="col-xs-10 col-md-10 col-sm-12").marquee.b
-
-for span_tag in marquee_tag('span'):
-    span_tag.replace_with('')
-
-for img_tag in marquee_tag('img'):
-    img_tag.replace_with('')
-
-symbol_list = marquee_tag.text.split('( )')
-
-all_symbols = []
-
-short_name = []
-
-per_share_value = []
-
-total_traded_amount = []
-
-a1 = []
-
-a2 = []
-
-a3 = []
-
-for symbol in symbol_list:
-    symbol_name = symbol.replace(u'\xa0', u'')
-
-    all_symbols.append(symbol_name)
-
-all_symbols.pop()
-
-a = len(all_symbols)
-
-for i in range(a):
-    a1.append(all_symbols[i].strip())
-
-    a2.append(a1[i].split(' '))
-
-for i in range(len(a1)):
-    short_name.append(a2[i][0])
-
-    per_share_value.append(a2[i][1])
-
-    total_traded_amount.append(a2[i][3])
-
-    csv_writer.writerow([a2[i][0], a2[i][1], a2[i][3]])
-
-# print(total_traded_amount)
+with open('index.csv', 'w') as f_object:
+    writer_object = writer(f_object)
+    writer_object.writerow(headers)
+    f_object.close()
+data = [j.text for j in table.find_all('td')]  # data inside the tr tag
+i = 0
+while i < 13:
+    dict = {'Index': data[i], 'Close': data[i + 1], 'Point Change': data[i + 2],
+            '% Change': data[i + 3]}
+    with open('index.csv', 'a') as f_object:
+        dictwriter_object = DictWriter(f_object, fieldnames=headers)
+        dictwriter_object.writerow(dict)
+        f_object.close()
+    i += 4
 
 
-csv_file.close()
+
+os.system('python ../pythonProject3/Nepse.py')
+table1 = soup.find_all('th')[25:-21]
+head = [i.text for i in table1]
+with open('Sub-Indices.csv', 'w') as f_object:
+    writer_object = writer(f_object)
+    writer_object.writerow(head)
+    f_object.close()
+table2 = soup.find_all('td')[28:-122]
+data1 = [j.text for j in table2]
+i = 0
+while i < 65:
+    dict = {'Sub-Indices': data1[i], 'Turnover': data1[i + 1], 'Close': data1[i + 2], 'Point': data1[i+3],
+            '% Change': data1[1+4]}
+    with open('Sub-Indices.csv', 'a') as f_object:
+        dictwriter_object = DictWriter(f_object, fieldnames=head)
+        dictwriter_object.writerow(dict)
+        f_object.close()
+    i += 5
+print(headers)
+print(data)
+print(head)
+print(data1)
+#change location if file in different location
+os.system('python ../pythonProject3/Nepse.py')
