@@ -85,6 +85,8 @@ data3 = [i.text for i in table3.find_all('td')][1:]
 data3 = [item.strip() for item in data3 if str(item)]
 data3 = [item.replace(',', '') for item in data3 if str(item)]
 data3 = [item.replace(' ', '') for item in data3 if str(item)]
+data3 = [item.replace(':', '') for item in data3 if str(item)]
+data3 = [item.replace('.', '') for item in data3 if str(item)]
 head3 = ['Market Summary', 'Data']
 with open('Market_Summary.csv', 'w') as f_object:
     writer_object = writer(f_object)
