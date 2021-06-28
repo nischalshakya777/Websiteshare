@@ -23,8 +23,11 @@ with open('index.csv', 'w') as f_object:
     f_object.close()
 data = [j.text for j in table.find_all('td')]
 data = [item.replace(',', '') for item in data if str(item)]
+data = [item.strip() for item in data if str(item)]
+data = [item.replace(' ', '') for item in data if str(item)]
+
 i = 0
-while i < 13:
+while i < len(data):
     dict = {headers[0]: data[i], headers[1]: data[i + 1], headers[2]: data[i + 2],
             headers[3]: data[i + 3]}
     with open('index.csv', 'a') as f_object:
@@ -44,6 +47,7 @@ table2 = soup.find_all('td')[28:-122]
 data1 = [j.text for j in table2]
 data1 = [item.strip() for item in data1 if str(item)]
 data1 = [item.replace(',', '') for item in data1 if str(item)]
+data1 = [item.replace(' ', '') for item in data1 if str(item)]
 
 i = 0
 while i < 65:
