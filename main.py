@@ -36,7 +36,6 @@ while i < len(data):
         f_object.close()
     i += 4
 
-os.system('python ../pythonProject3/Nepse.py')
 table1 = soup.find_all('th')[25:-21]
 head = [i.text for i in table1]
 with open('Sub-Indices.csv', 'w') as f_object:
